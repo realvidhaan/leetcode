@@ -1,0 +1,6 @@
+# Intermediate queue metadata consumed by scripts/backfill_backlog.py.
+# The rendered backlog.json is the committed source of truth.
+backlog.meta.json
+
+# Local backfill run log.
+backfill.log

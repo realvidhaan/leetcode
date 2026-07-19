@@ -1,0 +1,40 @@
+name: Daily LeetCode commit
+
+# Commits one backlog problem per day. Runs entirely on GitHub's infrastructure
+# (no dependency on a local machine being awake) and makes NO external calls
+# except `git push` — the queue is pre-materialized in backlog.json, so there
+# is no LeetCode cookie or any other secret involved.
+
+on:
+  schedule:
+    # 04:00 UTC ≈ 21:00 America/Los_Angeles (cron is UTC-only, so it shifts ±1h
+    # across DST). GitHub may delay scheduled runs a few minutes under load.
+    - cron: "0 4 * * *"
+  workflow_dispatch: {}
+
+# Prevent overlapping runs from double-committing.
+concurrency:
+  group: daily-leetcode
+  cancel-in-progress: false
+
+permissions:
+  contents: write
+
+jobs:
+  commit:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        # Default token + persisted credentials let daily_commit.py push to main.
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Commit next backlog problem
+        env:
+          GIT_AUTHOR_NAME: Vidhaan T. Jain
+          # Author email must match a verified email on the GitHub account for
+          # the commit to count on the contribution graph.
+          GIT_AUTHOR_EMAIL: realvidhaan@gmail.com
+        run: python3 scripts/daily_commit.py
